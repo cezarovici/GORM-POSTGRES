@@ -2,16 +2,22 @@ package app
 
 import (
 	"context"
-	"fmt"
-	"log"
 
+	apperrors "github.com/cezarovici/GORM-POSTGRES/app/errors"
 	"github.com/cezarovici/GORM-POSTGRES/infra/postgres"
+	"github.com/rs/zerolog/log"
 )
 
-func RunRepositoryDemo(ctx context.Context, userRepo postgres.PostgreSqlRepo) {
-	fmt.Println("1. MIGRATE REPOSITORY")
+func RunRepositoryDemo(ctx context.Context, userRepo postgres.PostgreSqlRepo) error {
+	log.Info().Msg("Inside in RunRepositoryDemo")
 
 	if err := userRepo.Migrate(ctx); err != nil {
-		log.Fatal(err)
+		return &apperrors.AppError{
+			Caller:     "App",
+			MethodName: "RunRepositoryDemo",
+			Issue:      err,
+		}
 	}
+
+	return nil
 }
