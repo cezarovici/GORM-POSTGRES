@@ -23,7 +23,7 @@ func (r *PostgreSqlRepo) Migrate(ctx context.Context) error {
 	query := `
     CREATE TABLE IF NOT EXISTS domain.Users(
         id SERIAL PRIMARY KEY,
-		rank INT NOT NULL
+		rank INT NOT NULL,
         first_name TEXT NOT NULL,
         last_name TEXT NOT NULL,
     );`
