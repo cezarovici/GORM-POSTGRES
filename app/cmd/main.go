@@ -9,6 +9,8 @@ import (
 
 	"github.com/cezarovici/GORM-POSTGRES/app"
 	"github.com/cezarovici/GORM-POSTGRES/infra/postgres"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 func main() {
