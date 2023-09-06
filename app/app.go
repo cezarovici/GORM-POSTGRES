@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/cezarovici/GORM-POSTGRES/domain"
+	"github.com/cezarovici/GORM-POSTGRES/infra/postgres"
 )
 
-func RunRepositoryDemo(ctx context.Context, userRepo domain.Repository) {
+func RunRepositoryDemo(ctx context.Context, userRepo postgres.PostgreSqlRepo) {
 	fmt.Println("1. MIGRATE REPOSITORY")
 
 	if err := userRepo.Migrate(ctx); err != nil {

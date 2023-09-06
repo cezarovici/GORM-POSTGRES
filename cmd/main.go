@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/cezarovici/GORM-POSTGRES/app"
-	"github.com/cezarovici/GORM-POSTGRES/domain"
+	"github.com/cezarovici/GORM-POSTGRES/infra/postgres"
 )
 
 func main() {
@@ -18,10 +18,10 @@ func main() {
 	}
 	defer db.Close()
 
-	repo := domain.NewPostgresRepo(db)
+	repo := postgres.NewPostgresRepo(db)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	app.RunRepositoryDemo(ctx, repo)
+	app.RunRepositoryDemo(ctx, *repo)
 }

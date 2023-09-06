@@ -1,8 +1,10 @@
-package domain
+package postgres
 
 import (
 	"context"
 	"errors"
+
+	"github.com/cezarovici/GORM-POSTGRES/domain"
 )
 
 var (
@@ -15,8 +17,8 @@ var (
 type Repository interface {
 	Migrate(ctx context.Context) error
 	Create(ctx context.Context) error
-	All(ctx context.Context, user User) (*User, error)
-	GetByName(ctx context.Context, name string) (*User, error)
-	Update(ctx context.Context, name string) (*User, error)
-	Delete(ctx context.Context, name string) (*User, error)
+	All(ctx context.Context, user domain.User) (*domain.User, error)
+	GetByName(ctx context.Context, name string) (*domain.User, error)
+	Update(ctx context.Context, name string) (*domain.User, error)
+	Delete(ctx context.Context, name string) (*domain.User, error)
 }

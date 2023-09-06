@@ -1,10 +1,11 @@
-package domain
+package postgres
 
 import (
 	"context"
 	"database/sql"
 	"errors"
 
+	"github.com/cezarovici/GORM-POSTGRES/domain"
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
@@ -20,7 +21,7 @@ func NewPostgresRepo(db *sql.DB) *PostgreSqlRepo {
 
 func (r *PostgreSqlRepo) Migrate(ctx context.Context) error {
 	query := `
-    CREATE TABLE IF NOT EXISTS users(
+    CREATE TABLE IF NOT EXISTS domain.Users(
         id SERIAL PRIMARY KEY,
 		rank INT NOT NULL
         first_name TEXT NOT NULL,
@@ -32,10 +33,10 @@ func (r *PostgreSqlRepo) Migrate(ctx context.Context) error {
 	return errQueryExec
 }
 
-func (r *PostgreSqlRepo) Create(ctx context.Context, user User) (*User, error) {
+func (r *PostgreSqlRepo) Create(ctx context.Context, user domain.User) (*domain.User, error) {
 	var id int32
 
-	err := r.db.QueryRowContext(ctx, "INSERT INTO Users(rank,first_name, last_name) values($1, $2, $3) RETURNING id", user.Rank, user.FirstName, user.LastName).Scan(&id)
+	err := r.db.QueryRowContext(ctx, "INSERT INTO users(rank,first_name, last_name) values($1, $2, $3) RETURNING id", user.Rank, user.FirstName, user.LastName).Scan(&id)
 
 	if err != nil {
 		var pgxError *pgconn.PgError
@@ -52,17 +53,17 @@ func (r *PostgreSqlRepo) Create(ctx context.Context, user User) (*User, error) {
 	return &user, nil
 }
 
-func (r *PostgreSqlRepo) All(ctx context.Context) ([]User, error) {
-	rows, err := r.db.QueryContext(ctx, "SELECT * FROM users")
+func (r *PostgreSqlRepo) All(ctx context.Context) ([]domain.User, error) {
+	rows, err := r.db.QueryContext(ctx, "SELECT * FROM domain.Users")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var users []User
+	var users []domain.User
 
 	for rows.Next() {
-		var user User
+		var user domain.User
 		if err := rows.Scan(&user.ID, &user.Rank, &user.FirstName, &user.LastName); err != nil {
 			return nil, err
 		}
@@ -72,10 +73,10 @@ func (r *PostgreSqlRepo) All(ctx context.Context) ([]User, error) {
 	return users, nil
 }
 
-func (r *PostgreSqlRepo) GetByName(ctx context.Context, name string) (*User, error) {
-	row := r.db.QueryRowContext(ctx, "SELECT * FROM users WHERE name = $1", name)
+func (r *PostgreSqlRepo) GetByName(ctx context.Context, name string) (*domain.User, error) {
+	row := r.db.QueryRowContext(ctx, "SELECT * FROM userss WHERE name = $1", name)
 
-	var user User
+	var user domain.User
 	if err := row.Scan(&user.ID, &user.Rank, &user.FirstName, &user.LastName); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrNoExists
@@ -86,8 +87,8 @@ func (r *PostgreSqlRepo) GetByName(ctx context.Context, name string) (*User, err
 	return &user, nil
 }
 
-func (r *PostgreSqlRepo) Update(ctx context.Context, id int64, updated User) (*User, error) {
-	res, err := r.db.ExecContext(ctx, "UPDATE users SET rank = $1, first_name = $2 last_name = $3 WHERE id = $4", updated.Rank, updated.FirstName, updated.LastName, id)
+func (r *PostgreSqlRepo) Update(ctx context.Context, id int64, updated domain.User) (*domain.User, error) {
+	res, err := r.db.ExecContext(ctx, "UPDATE domain.Users SET rank = $1, first_name = $2 last_name = $3 WHERE id = $4", updated.Rank, updated.FirstName, updated.LastName, id)
 	if err != nil {
 		var pgxError *pgconn.PgError
 		if errors.As(err, &pgxError) {
@@ -111,7 +112,7 @@ func (r *PostgreSqlRepo) Update(ctx context.Context, id int64, updated User) (*U
 }
 
 func (r *PostgreSqlRepo) Delete(ctx context.Context, id int64) error {
-	res, err := r.db.ExecContext(ctx, "DELETE FROM users WHERE id = $1", id)
+	res, err := r.db.ExecContext(ctx, "DELETE FROM domain.Users WHERE id = $1", id)
 	if err != nil {
 		return err
 	}
