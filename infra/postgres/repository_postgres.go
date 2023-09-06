@@ -5,8 +5,10 @@ import (
 	"database/sql"
 	"errors"
 
+	apperrors "github.com/cezarovici/GORM-POSTGRES/app/errors"
 	"github.com/cezarovici/GORM-POSTGRES/domain"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/rs/zerolog/log"
 )
 
 type PostgreSqlRepo struct {
@@ -21,16 +23,22 @@ func NewPostgresRepo(db *sql.DB) *PostgreSqlRepo {
 
 func (r *PostgreSqlRepo) Migrate(ctx context.Context) error {
 	query := `
-    CREATE TABLE IF NOT EXISTS domain.Users(
+    CREATE TABLE IF NOT EXISTS users(
         id SERIAL PRIMARY KEY,
 		rank INT NOT NULL,
         first_name TEXT NOT NULL,
-        last_name TEXT NOT NULL,
+        last_name TEXT NOT NULL
     );`
+
+	log.Info().Msg("Inside the migrate fuction")
 
 	_, errQueryExec := r.db.ExecContext(ctx, query)
 
-	return errQueryExec
+	return &apperrors.RepositoryError{
+		Caller:     "Repository",
+		MethodName: "Migrate",
+		Issue:      errQueryExec,
+	}
 }
 
 func (r *PostgreSqlRepo) Create(ctx context.Context, user domain.User) (*domain.User, error) {
