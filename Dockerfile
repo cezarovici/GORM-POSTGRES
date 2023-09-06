@@ -1,3 +1,4 @@
 FROM golang:latest
 
-WORKDIR /urs/src/app
+WORKDIR /usr/src/app
+
