@@ -1,12 +1,17 @@
 package main
 
 import (
+	"os"
+
 	"github.com/cezarovici/GORM-POSTGRES/database"
 	"github.com/gofiber/fiber/v2"
 )
 
 func main() {
-	database.ConnectDb()
+	err := database.ConnectDb()
+	if err != nil {
+		os.Exit(1)
+	}
 
 	app := fiber.New()
 
