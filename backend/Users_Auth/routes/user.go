@@ -1,14 +1,15 @@
 package routes
 
 import (
+	"log"
+	"math/rand"
+
+	"github.com/cezarovici/GORM-POSTGRES/database"
 	"github.com/cezarovici/GORM-POSTGRES/models"
 
-	"math/rand"
 	"time"
 
 	"os"
-
-	db "github.com/cezarovici/GORM-POSTGRES/database"
 
 	"github.com/cezarovici/GORM-POSTGRES/helpers"
 
@@ -50,10 +51,12 @@ func CreateUser(c *fiber.Ctx) error {
 		return c.JSON(errors)
 	}
 
-	if count := db.DB.Where(&models.User{Email: u.Email}).First(new(models.User)).RowsAffected; count > 0 {
+	log.Print(database.DB)
+
+	if count := database.DB.Where(&models.User{Email: u.Email}).First(new(models.User)).RowsAffected; count > 0 {
 		errors.Err, errors.Email = true, "Email is already registered"
 	}
-	if count := db.DB.Where(&models.User{Username: u.Username}).First(new(models.User)).RowsAffected; count > 0 {
+	if count := database.DB.Where(&models.User{Username: u.Username}).First(new(models.User)).RowsAffected; count > 0 {
 		errors.Err, errors.Username = true, "Username is already registered"
 	}
 	if errors.Err {
@@ -72,7 +75,7 @@ func CreateUser(c *fiber.Ctx) error {
 	}
 	u.Password = string(hashedPassword)
 
-	if err := db.DB.Create(&u).Error; err != nil {
+	if err := database.DB.Create(&u).Error; err != nil {
 		return c.JSON(fiber.Map{
 			"error":   true,
 			"general": "Something went wrong, please try again later. 😕",
@@ -89,6 +92,7 @@ func CreateUser(c *fiber.Ctx) error {
 		"access_token":  accessToken,
 		"refresh_token": refreshToken,
 	})
+
 }
 
 // LoginUser route logins a user in the app
@@ -106,7 +110,7 @@ func LoginUser(c *fiber.Ctx) error {
 
 	// check if a user exists
 	u := new(models.User)
-	if res := db.DB.Where(
+	if res := database.DB.Where(
 		&models.User{Email: input.Identity}).Or(
 		&models.User{Username: input.Identity},
 	).First(&u); res.RowsAffected <= 0 {
@@ -135,7 +139,7 @@ func GetUserData(c *fiber.Ctx) error {
 	id := c.Locals("id")
 
 	u := new(models.User)
-	if res := db.DB.Where("uuid = ?", id).First(&u); res.RowsAffected <= 0 {
+	if res := database.DB.Where("uuid = ?", id).First(&u); res.RowsAffected <= 0 {
 		return c.JSON(fiber.Map{"error": true, "general": "Cannot find the User"})
 	}
 
@@ -152,7 +156,7 @@ func GetAccessToken(c *fiber.Ctx) error {
 			return jwtKey, nil
 		})
 
-	if res := db.DB.Where(
+	if res := database.DB.Where(
 		"expires_at = ? AND issued_at = ? AND issuer = ?",
 		refreshClaims.ExpiresAt, refreshClaims.IssuedAt, refreshClaims.Issuer,
 	).First(&models.Claims{}); res.RowsAffected <= 0 {

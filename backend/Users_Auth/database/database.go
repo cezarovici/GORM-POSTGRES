@@ -23,7 +23,7 @@ var dbEnvs = fmt.Sprintf(
 )
 
 func ConnectDb() error {
-	DB, err := gorm.Open(postgres.Open(dbEnvs), &gorm.Config{
+	db, err := gorm.Open(postgres.Open(dbEnvs), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 
@@ -31,6 +31,8 @@ func ConnectDb() error {
 		log.Fatal("Failed to connect to database. \n", err)
 		return err
 	}
+
+	DB = db
 
 	log.Println("connected")
 	DB.Logger = logger.Default.LogMode(logger.Info)
