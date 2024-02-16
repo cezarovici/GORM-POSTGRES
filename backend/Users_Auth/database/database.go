@@ -12,11 +12,8 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-type Dbinstance struct {
-	Db *gorm.DB
-}
-
-var DB Dbinstance
+// DB represents a Database instance
+var DB *gorm.DB
 
 var dbEnvs = fmt.Sprintf(
 	"host=db user=%s password=%s dbname=%s port=5432 sslmode=disable TimeZone=Asia/Shanghai",
@@ -26,7 +23,7 @@ var dbEnvs = fmt.Sprintf(
 )
 
 func ConnectDb() error {
-	db, err := gorm.Open(postgres.Open(dbEnvs), &gorm.Config{
+	DB, err := gorm.Open(postgres.Open(dbEnvs), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 
@@ -36,14 +33,10 @@ func ConnectDb() error {
 	}
 
 	log.Println("connected")
-	db.Logger = logger.Default.LogMode(logger.Info)
+	DB.Logger = logger.Default.LogMode(logger.Info)
 
 	log.Println("running migrations")
-	db.AutoMigrate(&models.Users{})
-
-	DB = Dbinstance{
-		Db: db,
-	}
+	DB.AutoMigrate(&models.User{})
 
 	return nil
 }
