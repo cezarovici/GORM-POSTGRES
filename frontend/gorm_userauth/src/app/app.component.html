@@ -11,6 +11,7 @@
         <a class="navbar-item" routerLink="">Home</a>
         <a class="navbar-item" routerLink="login">Login</a>
         <a class="navbar-item" routerLink="members">Members</a>
+        <a class="navbar-item" *ngIf="!authService.isAuthenticated">Logout</a>
         </div>
     </div>
   </div>

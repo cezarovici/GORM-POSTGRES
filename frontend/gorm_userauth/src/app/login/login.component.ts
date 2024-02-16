@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { AuthService } from '../auth.service';
+
 
 @Component({
   selector: 'app-login',
@@ -11,17 +13,22 @@ import { FormGroup, FormBuilder, Validators, FormsModule, ReactiveFormsModule } 
 export class LoginComponent implements OnInit {
   form: FormGroup;
 
-  constructor(private fb: FormBuilder) {
-      this.form = this.fb.group({
-          email: ['', Validators.required],
-          password: ['', Validators.required]
-      });
-  }
+  constructor(private fb: FormBuilder, private authService: AuthService) {
+    this.form = this.fb.group({
+        email: ['', Validators.required],
+        password: ['', Validators.required]
+    });
+}
+
 
   ngOnInit() {
   }
 
   login() {
-      console.log('Clicked the Login button');
-  }
+    const val = this.form.value;
+
+    if (val.email && val.password) {
+      this.authService.login(val.email, val.password);
+    }
+}
 }
